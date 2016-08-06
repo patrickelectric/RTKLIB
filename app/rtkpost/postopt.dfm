@@ -225,6 +225,7 @@ object OptDialog: TOptDialog
           'DGPS/DGNSS'
           'Kinematic'
           'Static'
+          'Static-Start'
           'Moving-Base'
           'Fixed'
           'PPP Kinematic'
@@ -634,7 +635,8 @@ object OptDialog: TOptDialog
         Items.Strings = (
           'OFF'
           'ON'
-          'Auto Calibration')
+          'Auto Calibration'
+          'Fix and Hold')
       end
       object FixCntHoldAmb: TEdit
         Left = 248
