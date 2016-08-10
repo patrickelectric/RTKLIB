@@ -860,6 +860,8 @@ static void convobs(FILE **ofp, rnxopt_t *opt, strfile_t *str, int *staid,
     }
     /* output rinex obs */
 	outrnxobsb(ofp[0],opt,str->obs->data,str->obs->n,str->obs->flag);
+    /* n[8] - count of events converted to rinex */
+    if (str->obs->flag == 5) n[8]++;
  	/* set to zero flag for the next iteration (initialization) */
  	str->obs->flag = 0;
     
@@ -1072,7 +1074,7 @@ static void setapppos(strfile_t *str, rnxopt_t *opt)
 /* show status message -------------------------------------------------------*/
 static int showstat(int sess, gtime_t ts, gtime_t te, int *n)
 {
-    const char type[]="ONGHQLCISE";
+    const char type[]="ONGHQLSET";
     char msg[1024]="",*p=msg,s[64];
     int i;
     
@@ -1089,9 +1091,10 @@ static int showstat(int sess, gtime_t ts, gtime_t te, int *n)
     }
     p+=sprintf(p,": ");
     
-    for (i=0;i<NOUTFILE+1;i++) {
+    /* +2 to NOUTFILE for counters of errors and events */
+    for (i=0;i<NOUTFILE+2;i++) {
         if (n[i]==0) continue;
-        p+=sprintf(p,"%c=%d%s",type[i],n[i],i<NOUTFILE?" ":"");
+        p+=sprintf(p,"%c=%d%s",type[i],n[i],i<NOUTFILE+1?" ":"");
     }
     return showmsg(msg);
 }
