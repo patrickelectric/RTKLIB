@@ -245,7 +245,6 @@ static int decode_rxmrawx(raw_t *raw)
     unsigned char *p=raw->buff+6;
 
     #define STD_SLIP 4  /* carrier phase stdev threshold for cycle-slip */
-
     trace(4,"decode_rxmrawx: len=%d\n",raw->len);
     
     nsat=U1(p+11);
