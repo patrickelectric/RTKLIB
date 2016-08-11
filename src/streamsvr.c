@@ -402,6 +402,14 @@ static void *strsvrthread(void *arg)
     unsigned char buff[1024];
     char sel[256];
     int i,n,cyc;
+
+   /* This "fake" solution structure is passed to strsendnmea
+   * when inpstr2-nmeareq is set to latlon*/
+   sol_t latlon_sol={{0}};
+   latlon_sol.stat=SOLQ_SINGLE;
+   latlon_sol.time=utc2gpst(timeget());
+   for (i=0;i<3;i++)
+       latlon_sol.rr[i]=svr->nmeapos[i];
     
     tracet(3,"strsvrthread:\n");
     
@@ -450,6 +458,10 @@ static void *strsvrthread(void *arg)
         /* write periodic command to input stream */
         for (i=0;i<svr->nstr;i++) {
             periodic_cmd(cyc*svr->cycle,svr->cmds_periodic[i],svr->stream+i);
+        /* write nmea messages to input stream */
+        if (svr->nmeacycle>0&&(int)(tick-ticknmea)>=svr->nmeacycle) {
+            strsendnmea(svr->stream,&latlon_sol);
+            ticknmea=tick;
         }
         /* write nmea messages to input stream */
         if (svr->nmeacycle>0&&(int)(tick-tick_nmea)>=svr->nmeacycle) {

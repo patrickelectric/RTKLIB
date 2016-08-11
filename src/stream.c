@@ -3276,7 +3276,7 @@ extern gtime_t strgettime(stream_t *stream)
 *          sol_t *sol       I   solution
 * return : none
 *-----------------------------------------------------------------------------*/
-extern void strsendnmea(stream_t *stream, const sol_t *sol)
+extern void strsendnmea(stream_t *stream, sol_t *sol)
 {
     unsigned char buff[1024];
     int n;
