@@ -1,3 +1,18 @@
+### Emlid's RTKLIB fork
+
+This fork powers all the [Reach](https://emlid.com/reach/) units. 
+
+We've added a couple of new features:
+
+* Added a new output - ERB protocol to use RTKLIB with APM autopilot
+* Time mark support. UBX-TIM-TM2 messages are parsed and added as external events to the RINEX logs
+* Fixed NMEA GGA messages sent back to base to contain all valid information
+
+This fork contains work of [Alexey Bulatov](https://github.com/AlexeyBulatov) and [Egor Fedorov](https://github.com/egorf).
+
+A big thanks to the RTKLIB maintainers, who made all this possible.
+
+<pre>
 #
 #  RTKLIB 2.4.3 Betas
 #
@@ -113,3 +128,5 @@ UPDATE HISTORY
                       support udp server and client for stream types
                       support periodic receiver commands by rtknavi, strsvr
 2017/04/25  2.4.3 b27 fix several bugs
+
+</pre>
