@@ -1548,13 +1548,13 @@ static void holdamb(rtk_t *rtk, const double *xa)
     /* return if less than min sats for hold */
     if (nv<rtk->opt.minholdsats-1) return;  /* nv=sat pairs, so subtract 1 */
 
-        R=zeros(nv,nv);
-        for (i=0;i<nv;i++) R[i+i*nv]=VAR_HOLDAMB;
+    R=zeros(nv,nv);
+    for (i=0;i<nv;i++) R[i+i*nv]=VAR_HOLDAMB;
         
-        /* update states with constraints */
-        if ((info=filter(rtk->x,rtk->P,H,v,R,rtk->nx,nv))) {
-            errmsg(rtk,"filter error (info=%d)\n",info);
-        }
+    /* update states with constraints */
+    if ((info=filter(rtk->x,rtk->P,H,v,R,rtk->nx,nv))) {
+        errmsg(rtk,"filter error (info=%d)\n",info);
+    }
     free(R);free(v); free(H);
 
     /* skip glonass/sbs icbias update if not enabled */

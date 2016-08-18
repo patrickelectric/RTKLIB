@@ -594,12 +594,10 @@ static int decode_trkmeas(raw_t *raw)
         raw->obs.data[n].SNR[0]=(unsigned char)(snr*4.0);
         raw->obs.data[n].code[0]=sys==SYS_CMP?CODE_L1I:CODE_L1C;
         raw->obs.data[n].LLI[0]=raw->lockt[sat-1][1]>0.0?1:0;
-        if (sys==SYS_SBS) { /* half-cycle valid */
-            raw->obs.data[n].LLI[0]|=lock2>142?0:2;
-        }
-        else {
+        if (sys==SYS_SBS)     /* half cycle valid flag */
+             raw->obs.data[n].LLI[0]|=lock2>142?0:2;
+        else
             raw->obs.data[n].LLI[0]|=flag&0x80?0:2;
-        }
         raw->lockt[sat-1][1]=0.0;
         
         for (j=1;j<NFREQ+NEXOBS;j++) {
