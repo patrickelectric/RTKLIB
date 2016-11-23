@@ -2936,7 +2936,8 @@ extern int strread(stream_t *stream, unsigned char *buff, int n)
     
     tracet(4,"strread: n=%d\n",n);
     
-    if (!(stream->mode&STR_MODE_R)||!stream->port||!checkfd(stream)) {
+    if (!(stream->mode&STR_MODE_R)||!stream->port) return 0;
+    if (!checkfd(stream)) {
         /* Try to open serial port */
         if (stream->type == STR_SERIAL)
         {
@@ -2991,7 +2992,8 @@ extern int strwrite(stream_t *stream, unsigned char *buff, int n)
     
     tracet(4,"strwrite: n=%d\n",n);
     
-    if (!(stream->mode&STR_MODE_W)||!stream->port||!checkfd(stream)) {
+    if (!(stream->mode&STR_MODE_W)||!stream->port) return 0;
+    if (!checkfd(stream)) {
         /* Try to open serial port */
         if (stream->type == STR_SERIAL)
         {
