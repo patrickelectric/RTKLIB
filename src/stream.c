@@ -1076,13 +1076,18 @@ static int recv_nb(socket_t sock, unsigned char *buff, int n)
 {
     struct timeval tv={0};
     fd_set rs;
-    int ret,nr;
+    int recv_return_code = 0;
     
     FD_ZERO(&rs); FD_SET(sock,&rs);
-    ret=select(sock+1,&rs,NULL,NULL,&tv);
-    if (ret<=0) return ret;
-    nr=recv(sock,(char *)buff,n,0);
-    return nr<=0?-1:nr;
+    if (!select(sock+1,&rs,NULL,NULL,&tv)) return 0;
+
+    recv_return_code = recv(sock,(char *)buff,n,0);
+
+    if (recv_return_code == 0) {
+        return -1;
+    } else {
+        return recv_return_code;
+    }
 }
 /* non-block send ------------------------------------------------------------*/
 static int send_nb(socket_t sock, unsigned char *buff, int n)
