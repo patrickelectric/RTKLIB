@@ -569,6 +569,24 @@ static int checkfd(stream_t *stream)
     }
     return 1;
 }
+/* get extended state serial -------------------------------------------------*/
+static int statexserial(serial_t *serial, char *msg)
+{
+    char *p=msg;
+    int state=!serial?0:(serial->error?-1:2);
+    
+    p+=sprintf(p,"serial:\n");
+    p+=sprintf(p,"  state   = %d\n",state);
+    if (!state) return 0;
+    p+=sprintf(p,"  dev     = %d\n",(int)serial->dev);
+    p+=sprintf(p,"  error   = %d\n",serial->error);
+#ifdef WIN32
+    p+=sprintf(p,"  buffsize= %d\n",serial->buffsize);
+    p+=sprintf(p,"  wp      = %d\n",serial->wp);
+    p+=sprintf(p,"  rp      = %d\n",serial->rp);
+#endif
+    return state;
+}
 /* open file -----------------------------------------------------------------*/
 static int openfile_(file_t *file, gtime_t time, char *msg)
 {    
