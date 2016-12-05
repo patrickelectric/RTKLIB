@@ -407,8 +407,8 @@ static void corr_phase_bias_ssr(obsd_t *obs, int n, const nav_t *nav)
     }
 }
 /* process positioning -------------------------------------------------------*/
-static void procpos(FILE *fp, const prcopt_t *popt, const solopt_t *sopt, rtk_t *rtk,
-                    int mode)
+static void procpos(FILE *fp, FILE *fptm, const prcopt_t *popt, const solopt_t *sopt,
+                    rtk_t *rtk, int mode)
 {
     gtime_t time={0};
     sol_t sol={{0}};
@@ -449,7 +449,16 @@ static void procpos(FILE *fp, const prcopt_t *popt, const solopt_t *sopt, rtk_t 
             for (i=0;i<n;i++) obs[i].L[1]=obs[i].P[1]=0.0;
         }
 #endif
-        if (!rtkpos(rtk,obs,n,&navs)) continue;
+        if (!rtkpos(rtk,obs,n,&navs)) {
+            if (rtk->sol.eventime.time != 0) {
+                if (mode == 0) {
+                    outinvalidtm(fptm, sopt, rtk->sol.eventime);
+                } else if (!revs) {
+                    invalidtm[nitm++] = rtk->sol.eventime;
+                }
+            }
+            continue;
+        }
         
         if (mode==0) { /* forward/backward */
             if (!solstatic) {
@@ -463,15 +472,15 @@ static void procpos(FILE *fp, const prcopt_t *popt, const solopt_t *sopt, rtk_t 
                 }
             }
             /* check time mark */
-            if (rtk.sol.eventime.time != 0)
+            if (rtk->sol.eventime.time != 0)
             {
-                newsol = fillsoltm(oldsol,rtk.sol,rtk.sol.eventime);
+                newsol = fillsoltm(oldsol,rtk->sol,rtk->sol.eventime);
                 num++;
                 if (!solstatic && mode == 0) {
                     outsol(fptm,&newsol,rb,sopt);
                 }
             }
-            oldsol = rtk.sol;
+            oldsol = rtk->sol;
         }
         else if (!revs) { /* combined-forward */
             if (isolf>=nepoch) return;
