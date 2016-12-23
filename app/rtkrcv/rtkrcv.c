@@ -653,7 +653,6 @@ static void prstatus(vt_t *vt)
     rcvcount = svr.raw[0].obs.rcvcount;
     tmcount = svr.raw[0].obs.tmcount;
     timevalid = svr.raw[0].obs.data[0].timevalid;
-    /* timevalid = svr.obs[0][0].data[0].timevalid; */
     cputime=svr.cputime;
     prcout=svr.prcout;
     nave=svr.nave;
@@ -668,7 +667,6 @@ static void prstatus(vt_t *vt)
     }
     for (i=0;i<3;i++) rtcm[i]=svr.rtcm[i];
     time2str(svr.raw[0].obs.data[0].eventime,tmstr,9);
-    /* time2str(svr.obs[0][0].data[0].eventime,tmstr,9); */
     rtksvrunlock(&svr);
     
     for (i=n=0;i<MAXSAT;i++) {
