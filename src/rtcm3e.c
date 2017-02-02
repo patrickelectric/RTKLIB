@@ -207,9 +207,10 @@ static double cp_pr(double cp, double pr_cyc)
 /* generate obs field data gps -----------------------------------------------*/
 static void gen_obs_gps(rtcm_t *rtcm, const obsd_t *data, int *code1, int *pr1,
                         int *ppr1, int *lock1, int *amb, int *cnr1, int *code2,
-                        int *pr21, int *ppr2, int *lock2, int *cnr2)
+                        int *pr21, int *ppr2, int *lock2, int *cnr2, double tadj)
 {
     double lam1,lam2,pr1c=0.0,ppr;
+    double P0,L0,P1,L1;
     int lt1,lt2;
     
     lam1=CLIGHT/FREQ1;
@@ -219,25 +220,32 @@ static void gen_obs_gps(rtcm_t *rtcm, const obsd_t *data, int *code1, int *pr1,
     if (pr21) *pr21=0xFFFFE000;
     if (ppr2) *ppr2=0xFFF80000;
     
-    /* L1 peudorange */
-    if (data->P[0]!=0.0&&data->code[0]) {
-        *amb=(int)floor(data->P[0]/PRUNIT_GPS);
-        *pr1=ROUND((data->P[0]-*amb*PRUNIT_GPS)/0.02);
+    /* adjust P and L for consistency with time tag adjustment */
+    P0=L0=P1=L1=0;
+    if (data->P[0]!=0.0) P0=data->P[0]-tadj*CLIGHT;
+    if (data->L[0]!=0.0) L0=data->L[0]-tadj*FREQ1;
+    if (data->P[1]!=0.0) P1=data->P[1]-tadj*CLIGHT;
+    if (data->L[1]!=0.0) L1=data->L[1]-tadj*FREQ2;
+
+    /* L1 pseudorange */
+    if (P0!=0.0&&data->code[0]) {
+        *amb=(int)floor(P0/PRUNIT_GPS);
+        *pr1=ROUND((P0-*amb*PRUNIT_GPS)/0.02);
         pr1c=*pr1*0.02+*amb*PRUNIT_GPS;
     }
     /* L1 phaserange - L1 pseudorange */
-    if (data->P[0]!=0.0&&data->L[0]!=0.0&&data->code[0]) {
-        ppr=cp_pr(data->L[0],pr1c/lam1);
+    if (P0!=0.0&&L0!=0.0&&data->code[0]) {
+        ppr=cp_pr(L0,pr1c/lam1);
         if (ppr1) *ppr1=ROUND(ppr*lam1/0.0005);
     }
     /* L2 -L1 pseudorange */
-    if (data->P[0]!=0.0&&data->P[1]!=0.0&&data->code[0]&&data->code[1]&&
-        fabs(data->P[1]-pr1c)<=163.82) {
-        if (pr21) *pr21=ROUND((data->P[1]-pr1c)/0.02);
+    if (P0!=0.0&&P1!=0.0&&data->code[0]&&data->code[1]&&
+        fabs(P1-pr1c)<=163.82) {
+        if (pr21) *pr21=ROUND((P1-pr1c)/0.02);
     }
     /* L2 phaserange - L1 pseudorange */
-    if (data->P[0]!=0.0&&data->L[1]!=0.0&&data->code[0]&&data->code[1]) {
-        ppr=cp_pr(data->L[1],pr1c/lam2);
+    if (P0!=0.0&&L1!=0.0&&data->code[0]&&data->code[1]) {
+        ppr=cp_pr(L1,pr1c/lam2);
         if (ppr2) *ppr2=ROUND(ppr*lam2/0.0005);
     }
     lt1=locktime(data->time,rtcm->lltime[data->sat-1]  ,data->LLI[0]);
@@ -253,40 +261,51 @@ static void gen_obs_gps(rtcm_t *rtcm, const obsd_t *data, int *code1, int *pr1,
 /* generate obs field data glonass -------------------------------------------*/
 static void gen_obs_glo(rtcm_t *rtcm, const obsd_t *data, int fcn, int *code1,
                         int *pr1, int *ppr1, int *lock1, int *amb, int *cnr1,
-                        int *code2, int *pr21, int *ppr2, int *lock2, int *cnr2)
+                        int *code2, int *pr21, int *ppr2, int *lock2, int *cnr2,
+                        double tadj)
 {
     double lam1=0.0,lam2=0.0,pr1c=0.0,ppr;
+    double P0,L0,P1,L1,freq1,freq2;
     int lt1,lt2;
     
     if (fcn>=0) {
-        lam1=CLIGHT/(FREQ1_GLO+DFRQ1_GLO*(fcn-7));
-        lam2=CLIGHT/(FREQ2_GLO+DFRQ2_GLO*(fcn-7));
+        freq1=FREQ1_GLO+DFRQ1_GLO*(fcn-7);
+        freq2=FREQ2_GLO+DFRQ2_GLO*(fcn-7);
+        lam1=CLIGHT/freq1;
+        lam2=CLIGHT/freq2;
     }
     *pr1=*amb=0;
     if (ppr1) *ppr1=0xFFF80000; /* invalid values */
     if (pr21) *pr21=0xFFFFE000;
     if (ppr2) *ppr2=0xFFF80000;
     
-    /* L1 peudorange */
-    if (data->P[0]!=0.0) {
-        *amb=(int)floor(data->P[0]/PRUNIT_GLO);
-        *pr1=ROUND((data->P[0]-*amb*PRUNIT_GLO)/0.02);
+    /* adjust P and L for consistency with time tag adjustment */
+    P0=L0=P1=L1=0;
+    if (data->P[0]!=0.0) P0=data->P[0]-tadj*CLIGHT;
+    if (data->L[0]!=0.0) L0=data->L[0]-tadj*freq1;
+    if (data->P[1]!=0.0) P1=data->P[1]-tadj*CLIGHT;
+    if (data->L[1]!=0.0) L1=data->L[1]-tadj*freq2;
+
+    /* L1 pseudorange */
+    if (P0!=0.0) {
+        *amb=(int)floor(P0/PRUNIT_GLO);
+        *pr1=ROUND((P0-*amb*PRUNIT_GLO)/0.02);
         pr1c=*pr1*0.02+*amb*PRUNIT_GLO;
     }
     /* L1 phaserange - L1 pseudorange */
-    if (data->P[0]!=0.0&&data->L[0]!=0.0&&data->code[0]&&lam1>0.0) {
-        ppr=cp_pr(data->L[0],pr1c/lam1);
+    if (P0!=0.0&&L0!=0.0&&data->code[0]&&lam1>0.0) {
+        ppr=cp_pr(L0,pr1c/lam1);
         if (ppr1) *ppr1=ROUND(ppr*lam1/0.0005);
     }
     /* L2 -L1 pseudorange */
-    if (data->P[0]!=0.0&&data->P[1]!=0.0&&data->code[0]&&data->code[1]&&
-        fabs(data->P[1]-pr1c)<=163.82) {
-        if (pr21) *pr21=ROUND((data->P[1]-pr1c)/0.02);
+    if (P0!=0.0&&P1!=0.0&&data->code[0]&&data->code[1]&&
+        fabs(P1-pr1c)<=163.82) {
+        if (pr21) *pr21=ROUND((P1-pr1c)/0.02);
     }
     /* L2 phaserange - L1 pseudorange */
-    if (data->P[0]!=0.0&&data->L[1]!=0.0&&data->code[0]&&data->code[1]&&
+    if (P0!=0.0&&L1!=0.0&&data->code[0]&&data->code[1]&&
         lam2>0.0) {
-        ppr=cp_pr(data->L[1],pr1c/lam2);
+        ppr=cp_pr(L1,pr1c/lam2);
         if (ppr2) *ppr2=ROUND(ppr*lam2/0.0005);
     }
     lt1=locktime(data->time,rtcm->lltime[data->sat-1]  ,data->LLI[0]);
@@ -300,7 +319,8 @@ static void gen_obs_glo(rtcm_t *rtcm, const obsd_t *data, int fcn, int *code1,
     if (code2) *code2=to_code2_glo(data->code[1]);
 }
 /* encode rtcm header --------------------------------------------------------*/
-static int encode_head(int type, rtcm_t *rtcm, int sys, int sync, int nsat)
+static int encode_head(int type, rtcm_t *rtcm, int sys, int sync, int nsat,
+                       double *tadj)
 {
     double tow;
     int i=24,week,epoch;
@@ -313,11 +333,13 @@ static int encode_head(int type, rtcm_t *rtcm, int sys, int sync, int nsat)
     if (sys==SYS_GLO) {
         tow=time2gpst(timeadd(gpst2utc(rtcm->time),10800.0),&week);
         epoch=ROUND(fmod(tow,86400.0)/0.001);
+        *tadj=(fmod(tow,86400.0)/0.001-epoch)*0.001; /* time tag adjustment */
         setbitu(rtcm->buff,i,27,epoch); i+=27; /* glonass epoch time */
     }
     else {
         tow=time2gpst(rtcm->time,&week);
         epoch=ROUND(tow/0.001);
+        *tadj=(tow/0.001-epoch)*0.001; /* time tag adjustment */
         setbitu(rtcm->buff,i,30,epoch); i+=30; /* gps epoch time */
     }
     setbitu(rtcm->buff,i, 1,sync); i+= 1; /* synchronous gnss flag */
@@ -331,6 +353,7 @@ static int encode_type1001(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sys,prn;
     int code1,pr1,ppr1,lock1,amb;
+    double tadj;
     
     trace(3,"encode_type1001: sync=%d\n",sync);
     
@@ -340,7 +363,7 @@ static int encode_type1001(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1001,rtcm,SYS_GPS,sync,nsat);
+    i=encode_head(1001,rtcm,SYS_GPS,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sys=satsys(rtcm->obs.data[j].sat,&prn);
@@ -350,7 +373,7 @@ static int encode_type1001(rtcm_t *rtcm, int sync)
         
         /* generate obs field data gps */
         gen_obs_gps(rtcm,rtcm->obs.data+j,&code1,&pr1,&ppr1,&lock1,&amb,NULL,
-                    NULL,NULL,NULL,NULL,NULL);
+                    NULL,NULL,NULL,NULL,NULL,tadj);
         
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
         setbitu(rtcm->buff,i, 1,code1); i+= 1;
@@ -366,6 +389,7 @@ static int encode_type1002(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sys,prn;
     int code1,pr1,ppr1,lock1,amb,cnr1;
+    double tadj;
     
     trace(3,"encode_type1002: sync=%d\n",sync);
     
@@ -375,7 +399,7 @@ static int encode_type1002(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1002,rtcm,SYS_GPS,sync,nsat);
+    i=encode_head(1002,rtcm,SYS_GPS,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sys=satsys(rtcm->obs.data[j].sat,&prn);
@@ -385,7 +409,7 @@ static int encode_type1002(rtcm_t *rtcm, int sync)
         
         /* generate obs field data gps */
         gen_obs_gps(rtcm,rtcm->obs.data+j,&code1,&pr1,&ppr1,&lock1,&amb,&cnr1,
-                    NULL,NULL,NULL,NULL,NULL);
+                    NULL,NULL,NULL,NULL,NULL,tadj);
         
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
         setbitu(rtcm->buff,i, 1,code1); i+= 1;
@@ -403,6 +427,7 @@ static int encode_type1003(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sys,prn;
     int code1,pr1,ppr1,lock1,amb,code2,pr21,ppr2,lock2;
+    double tadj;
     
     trace(3,"encode_type1003: sync=%d\n",sync);
     
@@ -412,7 +437,7 @@ static int encode_type1003(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1003,rtcm,SYS_GPS,sync,nsat);
+    i=encode_head(1003,rtcm,SYS_GPS,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sys=satsys(rtcm->obs.data[j].sat,&prn);
@@ -422,7 +447,7 @@ static int encode_type1003(rtcm_t *rtcm, int sync)
         
         /* generate obs field data gps */
         gen_obs_gps(rtcm,rtcm->obs.data+j,&code1,&pr1,&ppr1,&lock1,&amb,
-                    NULL,&code2,&pr21,&ppr2,&lock2,NULL);
+                    NULL,&code2,&pr21,&ppr2,&lock2,NULL,tadj);
         
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
         setbitu(rtcm->buff,i, 1,code1); i+= 1;
@@ -442,6 +467,7 @@ static int encode_type1004(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sys,prn;
     int code1,pr1,ppr1,lock1,amb,cnr1,code2,pr21,ppr2,lock2,cnr2;
+    double tadj;
     
     trace(3,"encode_type1004: sync=%d\n",sync);
     
@@ -451,7 +477,7 @@ static int encode_type1004(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1004,rtcm,SYS_GPS,sync,nsat);
+    i=encode_head(1004,rtcm,SYS_GPS,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sys=satsys(rtcm->obs.data[j].sat,&prn);
@@ -461,7 +487,7 @@ static int encode_type1004(rtcm_t *rtcm, int sync)
         
         /* generate obs field data gps */
         gen_obs_gps(rtcm,rtcm->obs.data+j,&code1,&pr1,&ppr1,&lock1,&amb,
-                    &cnr1,&code2,&pr21,&ppr2,&lock2,&cnr2);
+                    &cnr1,&code2,&pr21,&ppr2,&lock2,&cnr2,tadj);
         
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
         setbitu(rtcm->buff,i, 1,code1); i+= 1;
@@ -586,6 +612,7 @@ static int encode_type1009(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sat,prn,fcn;
     int code1,pr1,ppr1,lock1,amb;
+    double tadj;
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sat=rtcm->obs.data[j].sat;
@@ -593,7 +620,7 @@ static int encode_type1009(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1009,rtcm,SYS_GLO,sync,nsat);
+    i=encode_head(1009,rtcm,SYS_GLO,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sat=rtcm->obs.data[j].sat;
@@ -602,7 +629,7 @@ static int encode_type1009(rtcm_t *rtcm, int sync)
         
         /* generate obs field data glonass */
         gen_obs_glo(rtcm,rtcm->obs.data+j,fcn,&code1,&pr1,&ppr1,&lock1,&amb,
-                    NULL,NULL,NULL,NULL,NULL,NULL);
+                    NULL,NULL,NULL,NULL,NULL,NULL,tadj);
         
         if (fcn<0) fcn=0;
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
@@ -620,6 +647,7 @@ static int encode_type1010(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sat,prn,fcn;
     int code1,pr1,ppr1,lock1,amb,cnr1;
+    double tadj;
     
     trace(3,"encode_type1010: sync=%d\n",sync);
     
@@ -629,7 +657,7 @@ static int encode_type1010(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1010,rtcm,SYS_GLO,sync,nsat);
+    i=encode_head(1010,rtcm,SYS_GLO,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sat=rtcm->obs.data[j].sat;
@@ -638,7 +666,7 @@ static int encode_type1010(rtcm_t *rtcm, int sync)
         
         /* generate obs field data glonass */
         gen_obs_glo(rtcm,rtcm->obs.data+j,fcn,&code1,&pr1,&ppr1,&lock1,&amb,
-                    &cnr1,NULL,NULL,NULL,NULL,NULL);
+                    &cnr1,NULL,NULL,NULL,NULL,NULL,tadj);
         
         if (fcn<0) fcn=0;
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
@@ -658,6 +686,7 @@ static int encode_type1011(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sat,prn,fcn;
     int code1,pr1,ppr1,lock1,amb,code2,pr21,ppr2,lock2;
+    double tadj;
     
     trace(3,"encode_type1011: sync=%d\n",sync);
     
@@ -667,7 +696,7 @@ static int encode_type1011(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1011,rtcm,SYS_GLO,sync,nsat);
+    i=encode_head(1011,rtcm,SYS_GLO,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sat=rtcm->obs.data[j].sat;
@@ -676,7 +705,7 @@ static int encode_type1011(rtcm_t *rtcm, int sync)
         
         /* generate obs field data glonass */
         gen_obs_glo(rtcm,rtcm->obs.data+j,fcn,&code1,&pr1,&ppr1,&lock1,&amb,
-                    NULL,&code2,&pr21,&ppr2,&lock2,NULL);
+                    NULL,&code2,&pr21,&ppr2,&lock2,NULL,tadj);
         
         if (fcn<0) fcn=0;
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
@@ -698,6 +727,7 @@ static int encode_type1012(rtcm_t *rtcm, int sync)
 {
     int i,j,nsat=0,sat,prn,fcn;
     int code1,pr1,ppr1,lock1,amb,cnr1,code2,pr21,ppr2,lock2,cnr2;
+    double tadj;
     
     trace(3,"encode_type1012: sync=%d\n",sync);
     
@@ -707,7 +737,7 @@ static int encode_type1012(rtcm_t *rtcm, int sync)
         nsat++;
     }
     /* encode header */
-    i=encode_head(1012,rtcm,SYS_GLO,sync,nsat);
+    i=encode_head(1012,rtcm,SYS_GLO,sync,nsat,&tadj);
     
     for (j=0;j<rtcm->obs.n&&nsat<MAXOBS;j++) {
         sat=rtcm->obs.data[j].sat;
@@ -716,7 +746,7 @@ static int encode_type1012(rtcm_t *rtcm, int sync)
         
         /* generate obs field data glonass */
         gen_obs_glo(rtcm,rtcm->obs.data+j,fcn,&code1,&pr1,&ppr1,&lock1,&amb,
-                    &cnr1,&code2,&pr21,&ppr2,&lock2,&cnr2);
+                    &cnr1,&code2,&pr21,&ppr2,&lock2,&cnr2,tadj);
         
         if (fcn<0) fcn=0;
         setbitu(rtcm->buff,i, 6,prn  ); i+= 6;
