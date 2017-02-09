@@ -1546,7 +1546,10 @@ static void holdamb(rtk_t *rtk, const double *xa)
         }
     }
     /* return if less than min sats for hold */
-    if (nv<rtk->opt.minholdsats-1) return;  /* nv=sat pairs, so subtract 1 */
+    if (nv<rtk->opt.minholdsats-1) { /* nv=sat pairs, so subtract 1 */
+         free(v); free(H);
+         return;
+    }
 
     R=zeros(nv,nv);
     for (i=0;i<nv;i++) R[i+i*nv]=VAR_HOLDAMB;
@@ -1803,9 +1806,6 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
     }
     dops(j,azeld,0.0,rtk->sol.dop);
     rtk->sol.nSV = j;
-
-    rs=mat(6,n); dts=mat(2,n); var=mat(1,n); y=mat(nf*2,n); e=mat(3,n);
-    azel=zeros(2,n);
 
     /* Filling additional fields of structure sol_t */
     for (i=j=0;i<MAXSAT;i++) {
