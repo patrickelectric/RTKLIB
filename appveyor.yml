@@ -40,6 +40,8 @@ before_build:
 
 build_script:
   # Compile it and check for .exe
+  - cd "%INCLUDE%;%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
+  - ls
   - setx INCLUDE "%INCLUDE%;%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
   - call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat"
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
