@@ -40,7 +40,7 @@ before_build:
 
 build_script:
   # Compile it and check for .exe
-  - set INCLUDE="%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
+  - setx INCLUDE "%INCLUDE%;%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
   - call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat"
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
   #- msbuild "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcxproj" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
