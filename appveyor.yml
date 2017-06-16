@@ -40,6 +40,8 @@ before_build:
 
 build_script:
   # Compile it and check for .exe
+  - cd "C:\"
+  - dir /b /s stdio.h
   - cd "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
   - ls
   - setx INCLUDE "%INCLUDE%;%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
