@@ -40,7 +40,7 @@ before_build:
 
 build_script:
   # Compile it and check for .exe
-  - msbuild "%APPVEYOR_BUILD_FOLDER%/app/convbin/msc/msc.sln" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - msbuild "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - cd %APPVEYOR_BUILD_FOLDER%-build
   - '%make%'
   - dir /b /s *.exe
