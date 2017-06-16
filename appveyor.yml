@@ -42,8 +42,8 @@ build_script:
   # Compile it and check for .exe
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
   #- msbuild "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcxproj" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  - '%make%' --version
-  - '%make%' "%APPVEYOR_BUILD_FOLDER%\app\convbin\makefile
+  - cd "%APPVEYOR_BUILD_FOLDER%\app\convbin\
+  - '%make%'
   - cd %APPVEYOR_BUILD_FOLDER%-build
   - '%make%'
   - dir /b /s *.exe
