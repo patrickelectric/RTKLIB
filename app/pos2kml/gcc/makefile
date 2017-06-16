@@ -3,7 +3,12 @@
 BINDIR = /usr/local/bin
 SRC    = ../../../src
 CFLAGS = -Wall -O3 -ansi -pedantic -I$(SRC) -DTRACE
-LDLIBS  = -lm -lrt
+
+ifeq ($(OS), Linux)
+	LDLIBS = -lm -lrt
+else
+	LDLIBS = -lm -lwinmm
+endif
 
 pos2kml    : pos2kml.o convkml.o erb.o convgpx.o solution.o geoid.o rtkcmn.o preceph.o
 
