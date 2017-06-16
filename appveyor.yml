@@ -41,8 +41,10 @@ before_build:
 build_script:
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=C:\MinGW\bin;%PATH%
+  - cd C:\MinGW\bin
+  - ls
   - cd "%APPVEYOR_BUILD_FOLDER%\app\convbin\gcc"
-  - make
+  - mingw32-make
   # Compile it and check for .exe
   #- cd "C:\"
   #- dir /b /s stdio.h
