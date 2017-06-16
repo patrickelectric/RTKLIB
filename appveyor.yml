@@ -41,7 +41,7 @@ before_build:
 build_script:
   # Compile it and check for .exe
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
-  - dir /b /s rtklib
+  - ls "C:\projects\rtklib\app\convbin\msc\"
   - ls "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\"
   - msbuild "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - cd %APPVEYOR_BUILD_FOLDER%-build
