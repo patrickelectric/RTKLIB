@@ -55,6 +55,10 @@ build_script:
   - call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat"
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
   #- msbuild "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcxproj" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  #- cd "%APPVEYOR_BUILD_FOLDER%\app\convbin\gcc"
+  #- '%make%'
+  - cd %APPVEYOR_BUILD_FOLDER%-build
+  - '%make%'
   - dir /b /s *.exe
 
 after_build:
