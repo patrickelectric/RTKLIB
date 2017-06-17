@@ -6,7 +6,7 @@ init:
   - ps: Update-AppveyorBuild -Version ("{0}-{1}-{2}" -f $env:appveyor_repo_branch,$env:appveyor_build_number,$env:commit )
 
 environment:
-  VSVER: 12.0
+  VSVER: 14.0
   matrix:
     - MSVC_VERSION: 15
       RUNTIME_LINKAGE: static
