@@ -50,7 +50,8 @@ build_script:
   #- cd "C:\"
   #- dir /b /s stdio.h
   #- cd "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
-  #- ls
+  - ls
+  - copy convbin.exe %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe
   - setx INCLUDE "%INCLUDE%;%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\include"
   - call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat"
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
@@ -67,7 +68,7 @@ after_build:
   - dir /b /s *.exe
   - mkdir deploy
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\RTKUSER.exe deploy\RTKUSER.exe
-  - copy %APPVEYOR_BUILD_FOLDER%\app\convbin\gcc\convbin  deply\convbin.exe
+  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\convbin.exe
   - windeployqt --release deploy/RTKUSER.exe
   - windeployqt --release deploy/convbin.exe
   - 7z a -tzip HORUS_RTKUSER_%commit%.zip deploy -r
