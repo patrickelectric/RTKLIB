@@ -1,9 +1,11 @@
 #include "window.h"
 #include "ui_window.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QProcess>
 #include <QValidator>
 
 Window::Window(QWidget *parent) :
@@ -105,6 +107,43 @@ Window::Window(QWidget *parent) :
             qDebug() << "TODO";
         }
     });
+
+    // Process button
+    connect(ui->processButton, &QPushButton::clicked, [=](){
+        runRTKLIB();
+        if(ui->hoverRawInput->text().isEmpty() && ui->baseRawInput->text().isEmpty()) {
+            qDebug() << "Add Rover and Base files !";
+        }
+
+        if(ui->checkIBGE->checkState() == Qt::Checked) {
+            if(ui->IBGEObsInput->text().isEmpty() && ui->IBGENavInput->text().isEmpty()) {
+                qDebug() << "Add IBGE files !";
+                return;
+            }
+        } else {
+            //TODO
+            qDebug() << "TODO";
+        }
+    });
+}
+
+int Window::runCmd(QString cmd)
+{
+    QProcess *process = new QProcess();
+    process->start(cmd);
+    process->waitForFinished();
+    ui->output->append(process->readAllStandardError());
+    return process->exitCode();
+}
+
+void Window::runRTKLIB()
+{
+    QString path = qApp->applicationDirPath();
+    QString cmd = QStringLiteral("%1/convbin --help").arg(path);
+    if(runCmd(cmd) != 0) return;
+    cmd = QStringLiteral("%1/rnx2rtkp --help").arg(path);
+    if(runCmd(cmd) != 0) return;
+    cmd = QStringLiteral("%1/pos2kml --help").arg(path);
 }
 
 Window::~Window()
