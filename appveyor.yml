@@ -46,12 +46,21 @@ build_script:
   - cd "%APPVEYOR_BUILD_FOLDER%\app\convbin\gcc"
   - gcc --version
   - mingw32-make CC=gcc
-  # Compile it and check for .exe
-  #- cd "C:\"
-  #- dir /b /s stdio.h
-  #- cd "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\INCLUDE"
   - ls
   - copy convbin.exe %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe
+
+  - cd "%APPVEYOR_BUILD_FOLDER%\app\rnx2rtkp\gcc"
+  - gcc --version
+  - mingw32-make CC=gcc
+  - ls
+  - copy rnx2rtkp.exe %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\rnx2rtkp.exe
+
+  - cd "%APPVEYOR_BUILD_FOLDER%\app\pos2kml\gcc"
+  - gcc --version
+  - mingw32-make CC=gcc
+  - ls
+  - copy pos2kml.exe %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\pos2kml.exe
+
   - setx INCLUDE "%INCLUDE%;%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\include"
   - call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat"
   - devenv /Upgrade "%APPVEYOR_BUILD_FOLDER%\app\convbin\msc\msc.vcproj"
@@ -69,6 +78,8 @@ after_build:
   - mkdir deploy
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\RTKUSER.exe deploy\RTKUSER.exe
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\convbin.exe
+  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\rnx2rtkp.exe
+  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\pos2kml.exe
   - windeployqt --release deploy/RTKUSER.exe
   #- windeployqt --release deploy/convbin.exe not a qt app
   - 7z a -tzip HORUS_RTKUSER_%commit%.zip deploy -r
