@@ -79,9 +79,10 @@ after_build:
   - dir /b /s *.exe
   - mkdir deploy
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\RTKUSER.exe deploy\RTKUSER.exe
+  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\configs.conf deploy\configs.conf
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\convbin.exe
-  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\rnx2rtkp.exe
-  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\pos2kml.exe
+  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\rnx2rtkp.exe deploy\rnx2rtkp.exe
+  - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\pos2kml.exe deploy\pos2kml.exe
   - windeployqt --release deploy/RTKUSER.exe
   #- windeployqt --release deploy/convbin.exe not a qt app
   - for %%I in (%VCLIBS%) do copy %VCLIBDIR%\%%I deploy\
