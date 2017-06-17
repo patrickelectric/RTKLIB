@@ -9,7 +9,12 @@ CTARGET=
 
 OPTION = -DENAGLO -DENAGAL -DENAQZS -DENACMP -DENAIRN -DTRACE -DNFREQ=3 -DNEXOBS=3 -DSVR_REUSEADDR
 CFLAGS = -Wall -O3 -ansi -pedantic -I$(SRC) $(OPTION) $(CTARGET) -g
-LDLIBS  = -lm -lrt -lpthread
+
+ifeq ($(OS), Linux)
+	LDLIBS = -lm -lrt -lpthread
+else
+	LDLIBS = -lm -lwinmm  -lpthread
+endif
 
 all        : str2str
 str2str    : str2str.o stream.o rtkcmn.o erb.o solution.o sbas.o geoid.o

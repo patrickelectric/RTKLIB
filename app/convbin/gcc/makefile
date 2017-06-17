@@ -11,7 +11,12 @@ OPTIONS= -DTRACE -DENAGLO -DENAQZS -DENAGAL -DENACMP -DENAIRN -DNFREQ=7 -DNEXOBS
 
 CFLAGS = -O3 -ansi -pedantic -Wall $(INCLUDE) $(OPTIONS) -g
 
-LDLIBS = -lm -lrt
+ifeq ($(OS), Linux)
+	LDLIBS = -lm -lrt
+else
+	LDLIBS = -lm -lwinmm
+endif
+
 
 all  : convbin
 

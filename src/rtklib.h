@@ -38,7 +38,7 @@
 #include <math.h>
 #include <time.h>
 #include <ctype.h>
-#ifdef WIN32
+#ifndef __linux__
 #include <winsock2.h>
 #include <windows.h>
 #else
@@ -501,7 +501,7 @@ extern "C" {
 #define P2_50       8.881784197001252E-16 /* 2^-50 */
 #define P2_55       2.775557561562891E-17 /* 2^-55 */
 
-#ifdef WIN32
+#ifndef __linux__
 #define thread_t    HANDLE
 #define lock_t      CRITICAL_SECTION
 #define initlock(f) InitializeCriticalSection(f)

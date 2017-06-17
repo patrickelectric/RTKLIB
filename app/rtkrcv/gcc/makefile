@@ -7,8 +7,18 @@ SRC    = ../../../src
 #CTARGET= -mfpu=neon -mfloat-abi=softfp -ffast-math
 CTARGET= -DENAGLO -DENAQZS -DENACMP -DENAGAL -DENAIRN -DNFREQ=3 -DSVR_REUSEADDR
 
+<<<<<<< HEAD
 CFLAGS = -Wall -O3 -ansi -pedantic -I$(SRC) -I.. -DTRACE $(CTARGET) -g
 LDLIBS  = -lm -lrt -lpthread
+=======
+CFLAGS = -Wall -O3 -ansi -pedantic -Wno-unused-but-set-variable -I$(SRC) -I.. -DTRACE $(CTARGET) -g
+
+ifeq ($(OS), Linux)
+	LDLIBS = -lm -lrt -lpthread
+else
+	LDLIBS = -lm -lwinmm
+endif
+>>>>>>> 36e6c49... Windows update and corrections
 
 all        : rtkrcv
 rtkrcv     : rtkrcv.o vt.o rtkcmn.o rtksvr.o rtkpos.o geoid.o erb.o solution.o lambda.o

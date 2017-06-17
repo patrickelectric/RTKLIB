@@ -8,7 +8,12 @@ OPTS    = -DTRACE -DENAGLO -DENAQZS -DENAGAL -DENACMP -DENAIRN -DNFREQ=3
 
 # for no lapack
 CFLAGS  = -Wall -O3 -ansi -pedantic -I$(SRC) $(OPTS) -g
-LDLIBS  = -lm -lrt
+
+ifeq ($(OS), Linux)
+	LDLIBS = -lm -lrt
+else
+	LDLIBS = -lm -lwinmm
+endif
 
 #CFLAGS  = -Wall -O3 -ansi -pedantic -Wno-unused-but-set-variable -I$(SRC) -DLAPACK $(OPTS)
 #LDLIBS  = -lm -lrt -llapack -lblas
