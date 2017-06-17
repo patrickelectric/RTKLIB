@@ -45,9 +45,7 @@ build_script:
   - ls
   - cd "%APPVEYOR_BUILD_FOLDER%\app\convbin\gcc"
   - gcc --version
-  - setx CC gcc
-  - setx cc gcc
-  - mingw32-make
+  - mingw32-make CC=gcc
   # Compile it and check for .exe
   #- cd "C:\"
   #- dir /b /s stdio.h
