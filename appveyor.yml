@@ -70,7 +70,7 @@ after_build:
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\RTKUSER.exe deploy\RTKUSER.exe
   - copy %APPVEYOR_BUILD_FOLDER%-build\%CONFIGURATION%\convbin.exe deploy\convbin.exe
   - windeployqt --release deploy/RTKUSER.exe
-  - windeployqt --release deploy/convbin.exe
+  #- windeployqt --release deploy/convbin.exe not a qt app
   - 7z a -tzip HORUS_RTKUSER_%commit%.zip deploy -r
   - copy %APPVEYOR_BUILD_FOLDER%-build\HORUS_RTKUSER_%commit%.zip %APPVEYOR_BUILD_FOLDER%\HORUS_RTKUSER_%commit%.zip
   - dir /b /s *.zip
