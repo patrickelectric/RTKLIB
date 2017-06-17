@@ -39,6 +39,7 @@ before_build:
   - qmake %APPVEYOR_BUILD_FOLDER%/app/rtkuser-qt -o %APPVEYOR_BUILD_FOLDER%-build -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION%
 
 build_script:
+  - setx CC gcc
   - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%
   - set PATH=C:\MinGW\bin;%PATH%
   - cd C:\MinGW\bin
