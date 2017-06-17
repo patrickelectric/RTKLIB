@@ -57,7 +57,7 @@ Window::Window(QWidget *parent) :
         if (fileName.isNull()) {
             QMessageBox::critical(this, tr("Error"), tr("No file selected !"));
         } else {
-            ui->hoverRawInput->setText(fileName);
+            ui->hoverRawInput->setText(QDir::toNativeSeparators(fileName));
         }
     });
 
@@ -70,7 +70,7 @@ Window::Window(QWidget *parent) :
         if (fileName.isNull()) {
             QMessageBox::critical(this, tr("Error"), tr("No file selected !"));
         } else {
-            ui->baseRawInput->setText(fileName);
+            ui->baseRawInput->setText(QDir::toNativeSeparators(fileName));
         }
     });
 
@@ -83,7 +83,7 @@ Window::Window(QWidget *parent) :
         if (fileName.isNull()) {
             QMessageBox::critical(this, tr("Error"), tr("No file selected !"));
         } else {
-            ui->IBGEObsInput->setText(fileName);
+            ui->IBGEObsInput->setText(QDir::toNativeSeparators(fileName));
         }
     });
 
@@ -96,7 +96,7 @@ Window::Window(QWidget *parent) :
         if (fileName.isNull()) {
             QMessageBox::critical(this, tr("Error"), tr("No file selected !"));
         } else {
-            ui->IBGENavInput->setText(fileName);
+            ui->IBGENavInput->setText(QDir::toNativeSeparators(fileName));
         }
     });
 
@@ -169,29 +169,32 @@ int Window::runCmd(QString cmd)
 
 void Window::runRTKLIB()
 {
+    //TODO
+    // Use QDir::toNativeSeparators in all paths
     ui->statusbar->showMessage("Running ...");
     QString path = qApp->applicationDirPath();
-    _folderName = QDateTime::currentDateTime().toString(QStringLiteral("ddMMyyyy-hhmmsszzz"));
-    _savedPath = path + QStringLiteral("/CUI-") + _folderName;
-    QString cmd = QStringLiteral("\"%1/convbin\" -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\"").arg(path).arg(ui->hoverRawInput->text()).arg(_savedPath);
+    _folderName = QDir::toNativeSeparators(QDateTime::currentDateTime().toString(QStringLiteral("ddMMyyyy-hhmmsszzz")));
+    _savedPath = QDir::toNativeSeparators(path + QStringLiteral("/CUI-") + _folderName + "/");
+    path = QDir::toNativeSeparators(path + "/");
+    QString cmd = QStringLiteral("\"%1convbin\" -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\"").arg(path).arg(ui->hoverRawInput->text()).arg(_savedPath);
     if(runCmd(cmd) != 0) {
         ui->output->append("Error !");
         ui->statusbar->showMessage("ERRO !");
         return;
     }
-    cmd = QStringLiteral("\"%1/convbin\" -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\"").arg(path).arg(ui->baseRawInput->text()).arg(_savedPath);
+    cmd = QStringLiteral("\"%1convbin\" -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\"").arg(path).arg(ui->baseRawInput->text()).arg(_savedPath);
     if(runCmd(cmd) != 0) {
         ui->output->append("Error !");
         ui->statusbar->showMessage("ERRO !");
         return;
     }
-    cmd = QStringLiteral("\"%1/rnx2rtkp\" -k \"%1/configs.conf\" \"%2/rover.obs\" \"%2/base.obs\" \"%2/base.nav\" \"%2/base.gnav\" -o \"%2/out.pos\"").arg(path).arg(_savedPath);
+    cmd = QStringLiteral("\"%1rnx2rtkp\" -k \"%1configs.conf\" \"%2rover.obs\" \"%2base.obs\" \"%2base.nav\" \"%2base.gnav\" -o \"%2out.pos\"").arg(path).arg(_savedPath);
     if(runCmd(cmd) != 0) {
         ui->output->append("Error !");
         ui->statusbar->showMessage("ERRO !");
         return;
     }
-    cmd = QStringLiteral("\"%1/pos2kml\" -o \"%2/out_events.gpx\" -a -gpx \"%2/out_events.pos\"").arg(path).arg(_savedPath);
+    cmd = QStringLiteral("\"%1pos2kml\" -o \"%2out_events.gpx\" -a -gpx \"%2out_events.pos\"").arg(path).arg(_savedPath);
     if(runCmd(cmd) != 0) {
         ui->output->append("Error !");
         ui->statusbar->showMessage("ERRO !");
@@ -200,7 +203,7 @@ void Window::runRTKLIB()
     ui->output->append("DONE !");
     ui->statusbar->showMessage("DONE !");
 
-    QString pathToSave = QFileDialog::getExistingDirectory(this, tr("Select path"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString pathToSave = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, tr("Select path"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
     if(pathToSave.isEmpty()) {
         ui->statusbar->showMessage("ERRO !");
         return;
@@ -212,9 +215,9 @@ void Window::runRTKLIB()
     qDebug() <<  _savedPath << QDir(_savedPath).exists() <<  pathToSave + "/" + _folderName << QDir(pathToSave + "/" + _folderName).exists();
     QStringList files = QDir(_savedPath).entryList(QDir::Files);
     for(const auto file : files) {
-        QFile(_savedPath + "/" + file).copy(pathToSave + "/" + _folderName + "/" + QFile(file).fileName());
+        QFile(QDir::toNativeSeparators(_savedPath + "/" + file)).copy(QDir::toNativeSeparators(pathToSave + "/" + _folderName + "/" + QFile(file).fileName()));
     }
-    ui->statusbar->showMessage("Done ! (Saved in " + pathToSave + "/" + _folderName + "/)");
+    ui->statusbar->showMessage("Done ! (Saved in " + QDir::toNativeSeparators(pathToSave + "/" + _folderName + "/") + ")");
 }
 
 Window::~Window()
