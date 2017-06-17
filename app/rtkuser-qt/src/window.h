@@ -19,4 +19,7 @@ public:
     void runRTKLIB();
 private:
     Ui::_MainWindow *ui;
+
+    QString _savedPath;
+    QString _folderName;
 };
