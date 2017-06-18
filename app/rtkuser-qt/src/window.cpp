@@ -174,7 +174,7 @@ void Window::runRTKLIB()
     ui->statusbar->showMessage("Running ...");
     QString path = qApp->applicationDirPath();
     _folderName = QDir::toNativeSeparators(QDateTime::currentDateTime().toString(QStringLiteral("ddMMyyyy-hhmmsszzz")));
-    _savedPath = QDir::toNativeSeparators(path + QStringLiteral("/CUI-") + _folderName + "/");
+    _savedPath = path + QStringLiteral("/CUI-") + _folderName + "/";
     path = QDir::toNativeSeparators(path + "/");
     QString cmd = QStringLiteral("\"%1convbin\" -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\"").arg(path).arg(ui->hoverRawInput->text()).arg(_savedPath);
     if(runCmd(cmd) != 0) {
@@ -188,6 +188,7 @@ void Window::runRTKLIB()
         ui->statusbar->showMessage("ERRO !");
         return;
     }
+    _savedPath = QDir::toNativeSeparators(_savedPath);
     cmd = QStringLiteral("\"%1rnx2rtkp\" -k \"%1configs.conf\" \"%2rover.obs\" \"%2base.obs\" \"%2base.nav\" \"%2base.gnav\" -o \"%2out.pos\"").arg(path).arg(_savedPath);
     if(runCmd(cmd) != 0) {
         ui->output->append("Error !");
