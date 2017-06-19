@@ -141,8 +141,12 @@ int Window::runCmd(QString cmd)
     QProcess *process = new QProcess();
     ui->output->append(QStringLiteral("Running %1").arg(cmd));
 
-    process->execute(cmd);
-    process->waitForFinished();
+    process->start(cmd);
+    process->closeReadChannel(QProcess::StandardOutput);
+    process->closeReadChannel(QProcess::StandardError);
+    while(!process->waitForFinished(100)) {
+        QCoreApplication::processEvents();
+    }
     ui->output->moveCursor(QTextCursor::End);
     QCoreApplication::processEvents();
     return process->exitCode();
