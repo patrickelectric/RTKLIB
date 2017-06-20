@@ -46,7 +46,7 @@
         <item row="0" column="1">
          <widget class="QLineEdit" name="hoverRawInput">
           <property name="placeholderText">
-           <string>Dados do Hover</string>
+           <string>Dados do Rover</string>
           </property>
          </widget>
         </item>
