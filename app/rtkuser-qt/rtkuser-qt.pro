@@ -28,7 +28,9 @@ DebugBuild {
 }
 
 copydata.commands = $$QMAKE_COPY "$$shell_path($$PWD/configs.conf)" "$$shell_path($$DESTDIR)"
-first.depends = $(first) copydata
+copydata2.commands = $$QMAKE_COPY "$$shell_path($$PWD/configs2.conf)" "$$shell_path($$DESTDIR)"
+first.depends = $(first) copydata copydata2
 export(first.depends)
 export(copydata.commands)
-QMAKE_EXTRA_TARGETS += first copydata
+export(copydata2.commands)
+QMAKE_EXTRA_TARGETS += first copydata copydata2
