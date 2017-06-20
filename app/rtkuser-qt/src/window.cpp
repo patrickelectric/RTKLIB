@@ -31,7 +31,9 @@ Window::Window(QWidget *parent) :
         ui->baseLonInput->setEnabled(state == Qt::Checked);
         ui->baseAltInput->setEnabled(state == Qt::Checked);
         ui->basePositionButton->setEnabled(state == Qt::Checked);
-        ui->checkIBGE->setCheckState(state == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+        if(ui->checkIBGE->isChecked()) {
+            ui->checkIBGE->setCheckState(state == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+        }
     });
     connect(ui->checkIBGE, &QCheckBox::stateChanged, [=](int state) {
         ui->IBGEObsInput->setEnabled(state == Qt::Checked);
@@ -40,7 +42,9 @@ Window::Window(QWidget *parent) :
         ui->IBGEObsButton->setEnabled(state == Qt::Checked);
         ui->label_3->setEnabled(state == Qt::Checked);
         ui->label_4->setEnabled(state == Qt::Checked);
-        ui->checkBaseRtk->setCheckState(state == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+        if(ui->checkBaseRtk->isChecked()) {
+            ui->checkBaseRtk->setCheckState(state == Qt::Checked ? Qt::Unchecked : Qt::Checked);
+        }
     });
     //TODO
     // We don't have it done yet
