@@ -4,6 +4,8 @@ CONFIG += \
     c++14 \
     static
 
+RC_ICONS = icon/icon.ico
+
 QT += \
     core \
     gui \
