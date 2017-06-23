@@ -20,6 +20,7 @@ Window::Window(QWidget *parent) :
     ui->baseLatInput->setValidator(new QDoubleValidator(-90, 90, 12, this));
     ui->baseLonInput->setValidator(new QDoubleValidator(-180, 180, 12, this));
     ui->baseAltInput->setValidator(new QDoubleValidator(8900, -100, 6, this));
+    ui->AntAltInput->setValidator(new QDoubleValidator(0, 200, 6, this));
 
     // Make connections and set initial state
     // IBGE and Base RTK
@@ -167,7 +168,7 @@ void Window::runRTKLIB()
         ui->statusbar->showMessage("ERRO !");
         return;
     }
-    cmd = QStringLiteral("\"%1convbin\" -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\" -o \"base.obs\" -n \"base.nav\"").arg(path).arg(ui->baseRawInput->text()).arg(_savedPath);
+    cmd = QStringLiteral("\"%1convbin\" -hd %4/0/0 -f 1 -r ubx -v 3.03 \"%2\" -d \"%3\" -o \"base.obs\" -n \"base.nav\"").arg(path).arg(ui->baseRawInput->text()).arg(_savedPath).arg(ui->AntAltInput->text());
     if(runCmd(cmd) != 0) {
         ui->output->append("Error !");
         ui->statusbar->showMessage("ERRO !");
