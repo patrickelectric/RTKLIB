@@ -20,9 +20,6 @@ Window::Window(QWidget *parent) :
     ui->baseLatInput->setValidator(new QDoubleValidator(-90, 90, 12, this));
     ui->baseLonInput->setValidator(new QDoubleValidator(-180, 180, 12, this));
     ui->baseAltInput->setValidator(new QDoubleValidator(8900, -100, 6, this));
-    ui->baseLatInput->setText("00.000000000000");
-    ui->baseLonInput->setText("00.000000000000");
-    ui->baseAltInput->setText("0000.0000");
 
     // Make connections and set initial state
     // IBGE and Base RTK
